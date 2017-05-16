@@ -6,12 +6,13 @@
     "MIT"
   ],
   "require": {
-    "php": ">=5.4.0"
+    "php": ">=5.4.0",
+    "monolog/monolog": "1.16.0"
   },
   "support": {
     "email": "support@signifyd.com"
   },
-  "version": "0.1.5",
+  "version": "0.1.6",
   "autoload": {
     "psr-4": {
       "Signifyd\\": "lib/"
