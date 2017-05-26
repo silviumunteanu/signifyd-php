@@ -47,8 +47,7 @@ class SignifydAPI
 
     public function __construct(SignifydSettings $settings)
     {
-        if(is_null($settings->apiKey))
-        {
+        if (is_null($settings->apiKey)) {
             throw new \Exception("API key is required.");
         }
         $this->settings = $settings;
@@ -119,8 +118,8 @@ class SignifydAPI
     public function closeCase($caseId)
     {
         $url = $this->makeUrl("cases/$caseId");
-        $data = array('status' => 'DISMISSED');
-        $curl = $this->_setupPutJsonRequest($url, $data);
+        $blob = array('status' => 'DISMISSED');
+        $curl = $this->_setupPutJsonRequest($url, $blob);
         $response = curl_exec($curl);
         $info = curl_getinfo($curl);
         $error = curl_error($curl);
@@ -133,6 +132,47 @@ class SignifydAPI
             return false;
         }
         return json_decode($response);
+    }
+
+    public function createGuarantee($guarantee)
+    {
+        $curl = $this->_setupPostJsonRequest($this->makeUrl("guarantees"), $guarantee);
+        $response = curl_exec($curl);
+        $info = curl_getinfo($curl);
+        $this->logInfo("Raw request create guaranty: " . json_encode($info));
+
+        $error = curl_error($curl);
+        curl_close($curl);
+
+        if ($this->checkResultError($info['http_code'], $response)) {
+            return false;
+        }
+
+        $this->logInfo("Raw response create guaranty: " . $response);
+
+        return json_decode($response)->disposition;
+    }
+
+    public function cancelGuarantee($caseId)
+    {
+        $url = $this->makeUrl("cases/$caseId/guarantee");
+        $blob = ['guaranteeDisposition' => 'CANCELED'];
+        $curl = $this->_setupPutJsonRequest($url, $blob);
+        $response = curl_exec($curl);
+        $info = curl_getinfo($curl);
+        $error = curl_error($curl);
+        curl_close($curl);
+        if ($this->checkResultError($info['http_code'], $response)) {
+            return false;
+        }
+        if(!empty($error)){
+            $this->logError("Curl call error: {$error}");
+            return false;
+        }
+
+        $this->logInfo("Raw response create guaranty: " . $response);
+
+        return json_decode($response)->disposition;
     }
 
     public function updatePayment($caseId, $paymentUpdate)
