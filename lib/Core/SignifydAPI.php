@@ -108,6 +108,15 @@ class SignifydAPI
         return ($response === false)? false : json_decode($response);
     }
 
+    public function getCases($limit = 50)
+    {
+        $url = $this->makeUrl("cases?limit=$limit");
+        $curl = $this->_setupGetRequest($url);
+        $response = $this->curlCall($curl);
+
+        return ($response === false)? false : json_decode($response);
+    }
+    
     public function closeCase($caseId)
     {
         $url = $this->makeUrl("cases/$caseId");
